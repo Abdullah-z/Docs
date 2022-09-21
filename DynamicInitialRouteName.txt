@@ -1,0 +1,36 @@
+const Stack = createNativeStackNavigator<StackNavigatorParamList>();
+
+export default function App() {
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function checkTokensAndSetNavigation() {
+      try {
+        const token = await SecureStore.getItemAsync(TOKEN_KEY);
+
+        if (token !== null) {
+          setInitialRoute("Home");
+        } else {
+          setInitialRoute("Signin");
+        }
+      } catch (error) {
+        setInitialRoute("Signin");
+        // Any needed logic for failure
+      }
+    }
+    checkTokensAndSetNavigation();
+  }, []);
+
+  const queryClient = new QueryClient();
+
+  return initialRoute !== null ? (
+	<NavigationContainer>
+	  <Stack.Navigator initialRouteName={initialRoute as "Signin" | "Home"}>
+		<Stack.Screen name="Home" component={Home} />
+		<Stack.Screen name="Signin" component={Signin} />
+  	  </Stack.Navigator>
+	</NavigationContainer>
+  ) : (
+    <AppLoading />
+  );
+}
